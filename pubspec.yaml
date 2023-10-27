@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_vlc_player: ^7.4.0
+  flutter_joystick: ^0.0.3
   udp: ^5.0.3
 
 dev_dependencies:
