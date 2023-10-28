@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:udp/udp.dart';
 
-class DjiDrone {
+class DjiDrone {  
+  bool _isFlying = false;
+  bool get isFlying => _isFlying;
+
   final UDP sender;
   final Stream reciever;
 
@@ -10,7 +13,13 @@ class DjiDrone {
   final int dronePort;
 
   Future<bool> isConnected() async {
-    return (await InternetAddress.lookup(droneIp)).isNotEmpty;
+    try {
+      await InternetAddress.lookup("$droneIp:$dronePort");
+      return true;
+    }
+    catch (e) {
+      return false;
+    }
   }
 
   static Future<DjiDrone> init({
@@ -31,7 +40,7 @@ class DjiDrone {
     sender.close();
   }
 
-  void sendData(String data) {
+  void sendData(String data) {    
     sender.send(
         data.codeUnits,
         Endpoint.unicast(InternetAddress.tryParse(droneIp),
@@ -45,9 +54,13 @@ class DjiDrone {
     await Future.delayed(const Duration(seconds: 1));
     sendData("battery?");
     sendData("takeoff");
+    _isFlying = true;
   }
 
-  void stop() => sendData("land");
+  void stop() {
+    sendData("land");
+    _isFlying = false;
+  }
 
   void setRc(double a, double b, double c, double d) => sendData("rc $a $b $c $d");
 
